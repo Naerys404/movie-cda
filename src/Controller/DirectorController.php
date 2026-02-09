@@ -28,9 +28,9 @@ final class DirectorController extends AbstractController
         $form->handleRequest($request);
 
          if ($form->isSubmitted() && $form->isValid()) {
-            $dir = $form->getData();
-           $em->persist($dir);
-           $em->flush();
+
+            $em->persist($dir);
+            $em->flush();
 
             $this->redirectToRoute('app_director_add');
          }

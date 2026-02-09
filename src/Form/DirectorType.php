@@ -4,6 +4,8 @@ namespace App\Form;
 
 use App\Entity\Director;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
+use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,11 +24,11 @@ class DirectorType extends AbstractType
                 'label'=>'Nom',
                 'required'=>true
             ])
-            ->add('birthDate', DateType::class, [
+            ->add('birthDate', BirthdayType::class, [
                 'label'=>'Date de naissance',
                 'widget' => 'single_text',
             ])
-            ->add('country', TextType::class ,[
+            ->add('country', CountryType::class ,[
                  'label'=>'Pays'
             ])
         ;
