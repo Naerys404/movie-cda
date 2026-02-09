@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+
+    
+<div class="example-wrapper">
+    <h1>Liste des catégories</h1>
+    <ul>
+    {% for cat in categories %}
+    <li>{{cat.name}}</li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

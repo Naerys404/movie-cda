@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Category;
 use App\Form\CategoryType;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,20 +14,25 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class CategoryController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em,
+                                private CategoryRepository $categoryRepository)
     {
         $this->em = $em;
+        $this->categoryRepository = $categoryRepository;
     }
 
-    #[Route('/category', name: 'app_category')]
+    #[Route('/categories', name: 'app_categories')]
     public function index(): Response
     {
-        return $this->render('category/index.html.twig', [
-            'controller_name' => 'CategoryController',
+        $categories = $this->categoryRepository->findAll();
+
+        return $this->render('category/show_all_category.html.twig', [
+            'title' => 'Liste des catégories',
+            'categories'=> $categories
         ]);
     }
     #[Route('/category/add', name: 'app_category_add')]
-    public function add_category(Request $request,): Response
+    public function add_category(Request $request): Response
     {
         $cat= new Category();
         $form = $this->createForm(CategoryType::class,$cat);
