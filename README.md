@@ -41,4 +41,3 @@ symfony console make:migration
 ```sh
 symfony console d:m:m
 ```
-
