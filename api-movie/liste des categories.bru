@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: https://127.0.0.0.1:8000/api/category
+  url: https://127.0.0.1:8000/api/category
   body: json
-  auth: inherit
+  auth: bearer
+}
+
+auth:bearer {
+  token: 
 }
 
 body:json {

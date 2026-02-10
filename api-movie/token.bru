@@ -6,10 +6,22 @@ meta {
 
 get {
   url: https://127.0.0.1:8000/api/login_check
-  body: none
-  auth: inherit
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NzA3Mjc3NTMsImV4cCI6MTc3MDczMTM1Mywicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoidGVzdEB0ZXN0LmNvbSJ9.Jj7OTIpiLh6NnfDIhJbtyDEBf6MerU8gJxtYmlJ5Dn-D14zh1wrVHs3MJRCePvGGKrx1yNl1waT-4uPF-iwKJtjhIL0FsWp_jgjVmu5rGCqnzg0B9SVgg8CkfA3MLgFO7cYo6I6Xkcoct2iYu1rot6XWdNMkBnrj11Sp84XnBsdBJnFezXZ_-I-b9D8mag4fBTRS48asFR9eo4HDjC_M6hPn2buivvS_ZB7KBQt8W8FcPEDNX7DoRe0rOIxDmAJzQEWJEHR5VrwKTG9zkauRaw_bBvAw52xqcMw3PzawrtSyW_pdmaEQXOipZ8DxOBsHojwEjOAv9hCVkB244VNcIhIm-YarAVjXTnaAV_HVhRmh18f2tffn1OT2_wZVcxQuNjZm0JCcCXRsMNtFWEygs8x--MA5BXVrqD-Gbe4HW1ePHaK6T-8mbnD1GieRtlncnNPMiX3apKuHUq-K3edgDqenEC-uTg_w15wlpVVEsX4-VLEuNoNFpINFJLb1BIJaUtfEMRrWiXLXvpvO8IyYNLRKNLUltUrJNNAJH6oN0o0QpK3CUgSn7Y10uExvV_fjh5SfzzyjPE0BahDh8QSkDTQjhw9U72rGAlOztCqPDguflX_KKgnNZPwnGkMnt5owqEyhrAgSi1AG1FaFSXsLaBvM8YVtqJN3cm6D0Vwuw1c
+}
+
+body:json {
+  {
+    "username":"test@test.com",
+    "password":"123456"
+  }
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
