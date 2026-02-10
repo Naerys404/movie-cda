@@ -5,6 +5,7 @@
 {% block body %}
     <main class="container-fluid">
         <turbo-frame id="id_director">
+        {{ form_errors(form) }}
         {{ form_start(form) }}
         {{ form_end(form) }}
     

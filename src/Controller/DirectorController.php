@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Director;
 use App\Form\DirectorType;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class DirectorController extends AbstractController
 {
@@ -17,6 +18,7 @@ final class DirectorController extends AbstractController
     ) {}
 
     #[Route('/director/add', name: 'app_director_add')]
+    #[IsGranted('ROLE_USER')]
     public function addDirector(Request $request): Response
     {
         $director = new Director();

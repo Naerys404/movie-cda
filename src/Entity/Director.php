@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\DirectorRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\Length;
 
 #[ORM\Entity(repositoryClass: DirectorRepository::class)]
 class Director
@@ -15,6 +16,7 @@ class Director
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Length(min:2, max:50,minMessage:'Le nom est trop court', maxMessage:'Le nom est trop long')]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 50)]
