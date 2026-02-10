@@ -1,0 +1,15 @@
+meta {
+  name: token
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://127.0.0.1:8000/api/login_check
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
