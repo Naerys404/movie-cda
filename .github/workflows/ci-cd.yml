@@ -57,7 +57,6 @@ jobs:
             # migration de la base de données
             - name: migration DB
               run: |
-                php bin/console d:d:c
                 php bin/console d:m:m
             
             # démarrage du serveur Symfony
