@@ -85,50 +85,50 @@ jobs:
           path: cypress/videos
           if-no-files-found: ignore # 'warn' or 'error' are also available, defaults to `warn`
 
-  deploy:
-    needs: e2e
-    runs-on: ubuntu-latest
-    steps:
-      # Checkout du code(récupération depuis le repo github)
-      - name: Checkout
-        uses: actions/checkout@v4
+    deploy:
+      needs: Symfony-test
+      runs-on: ubuntu-latest
+      steps:
+        # Checkout du code(récupération depuis le repo github)
+        - name: Checkout
+          uses: actions/checkout@v4
 
-      # Setup PHP, Composer, extensions
-      - name: Setup PHP CLI (Composer & outils)
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.4"
-          extensions: mbstring, intl, pdo_mysql, sodium, zip
-          tools: composer
-          coverage: none
+        # Setup PHP, Composer, extensions
+        - name: Setup PHP CLI (Composer & outils)
+          uses: shivammathur/setup-php@v2
+          with:
+            php-version: "8.4"
+            extensions: mbstring, intl, pdo_mysql, sodium, zip
+            tools: composer
+            coverage: none
 
-      # build .env for prod
-      - name: Build .env for the app prod
-        run: |
-          cp .env .env.prod
-          echo "APP_ENV=prod" >> .env
-          echo "APP_ENV=prod" >> .env.prod
-          echo "DATABASE_URL=mysql://${{ secrets.BDD_LOGIN }}:${{ secrets.BDD_PASSWORD }}@${{ secrets.BDD_SERVER }}:3306/app" >> .env.prod
-          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.prod
+        # build .env for prod
+        - name: Build .env for the app prod
+          run: |
+            cp .env .env.prod
+            echo "APP_ENV=prod" >> .env
+            echo "APP_ENV=prod" >> .env.prod
+            echo "DATABASE_URL=mysql://${{ secrets.BDD_LOGIN }}:${{ secrets.BDD_PASSWORD }}@${{ secrets.BDD_SERVER }}:3306/app" >> .env.prod
+            echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.prod
 
-      # installation des dépendances composer prod
-      - name: Installer dépendances Composer
-        run: composer install --no-interaction --prefer-dist
+        # installation des dépendances composer prod
+        - name: Installer dépendances Composer
+          run: composer install --no-interaction --prefer-dist
 
-      # creer les clés
-      - name: Création des clés
-        run: |
-          mkdir -p config/jwt
-          openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:${{ secrets.JWT_PASSPHRASE }}
-          openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:${{ secrets.JWT_PASSPHRASE }}
+        # creer les clés
+        - name: Création des clés
+          run: |
+            mkdir -p config/jwt
+            openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:${{ secrets.JWT_PASSPHRASE }}
+            openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:${{ secrets.JWT_PASSPHRASE }}
 
-      # Deployment via FTP
-      - name: 📂 Deployment to FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          exclude: |
-            var/**
-            vendor/**
+        # Deployment via FTP
+        - name: 📂 Deployment to FTP
+          uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+          with:
+            server: ${{ secrets.FTP_SERVER }}
+            username: ${{ secrets.FTP_USERNAME }}
+            password: ${{ secrets.FTP_PASSWORD }}
+            exclude: |
+              var/**
+              vendor/**
