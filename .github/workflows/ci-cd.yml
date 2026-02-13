@@ -1,134 +1,134 @@
 name: Symfony 8 + Cypress E2E Tests
 
 on:
-    push:
-        branches: [ main, test, dev ]
-    pull_request:
-        branches: [ main, test, dev ]
+  push:
+    branches: [main, test, dev]
+  pull_request:
+    branches: [main, test, dev]
 jobs:
-    Symfony-test:
-        runs-on: ubuntu-latest
-        # installation des services
-        services:
-            mysql:
-                image: mysql:8.0
-                env:
-                    MYSQL_ROOT_PASSWORD: root
-                    MYSQL_DATABASE: app
-                ports:
-                    - 3306:3306
-                options: >-
-                    --health-cmd="mysqladmin ping -h localhost"
-                    --health-interval=10s
-                    --health-timeout=5s
-                    --health-retries=5
-        steps:
-            # récupération du code du repository
-            - name: Checkout code
-              uses: actions/checkout@v4
-            
-            # configuration de PHP
-            - name: Set up PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                php-version: "8.4"
-                extensions: mbstring, intl, pdo_mysql, sodium
-                tools: composer  
-            
-            # paramétrage de l'environnement de test
-            # création des clés privé et publique
-            - name: création des clés OpenSSL public + private
-              run: |
-                mkdir -p config/jwt
-                openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:masupercle
-                openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:masupercle
-            # configuration du fichier .env pour les tests
-            - name: Set up .env for CI
-              run: |
-                cp .env .env.test
-                echo "APP_ENV=test" >> .env
-                echo "APP_ENV=test" >> .env.test
-                echo "DATABASE_URL=mysql://root:root@127.0.0.1:3306/app" >> .env.test
-                echo "JWT_PASSPHRASE=masupercle" >> .env.test
+  Symfony-test:
+    runs-on: ubuntu-latest
+    # installation des services
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: app
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      # récupération du code du repository
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Create test database
-              run: |
-                mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS app_test;"
+      # configuration de PHP
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, intl, pdo_mysql, sodium
+          tools: composer
 
-            # installation des dépendances Symfony
-            - name: Install PHP dependencies
-              run: composer install --no-interaction --prefer-dist
-            # migration de la base de données
-            - name: migration DB
-              run: |
-                php bin/console d:m:m
-            
-            # démarrage du serveur Symfony
-            - name: Run Symfony local server
-              run: |
-                php -S 127.0.0.1:8000 -t public &
-            
-            # Cypress Actions
-            - name : Test Cypress
-              uses: cypress-io/github-action@v6
-        
-            - uses: actions/upload-artifact@v6
-            # add the line below to store screenshots only on failures
-            # if: failure()
-              with:
-                name: cypress-screenshots
-                path: cypress/screenshots
-                if-no-files-found: ignore # 'warn' or 'error' are also available, defaults to `warn`
-            - uses: actions/upload-artifact@v6
-              with:
-                name: cypress-videos
-                path: cypress/videos
-                if-no-files-found: ignore # 'warn' or 'error' are also available, defaults to `warn`
+      # paramétrage de l'environnement de test
+      # création des clés privé et publique
+      - name: création des clés OpenSSL public + private
+        run: |
+          mkdir -p config/jwt
+          openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:masupercle
+          openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:masupercle
+      # configuration du fichier .env pour les tests
+      - name: Set up .env for CI
+        run: |
+          cp .env .env.test
+          echo "APP_ENV=test" >> .env
+          echo "APP_ENV=test" >> .env.test
+          echo "DATABASE_URL=mysql://root:root@127.0.0.1:3306/app" >> .env.test
+          echo "JWT_PASSPHRASE=masupercle" >> .env.test
 
-    deploy:
-        needs: e2e
-        runs-on: ubuntu-latest
-        steps:
-          # Checkout du code(récupération depuis le repo github)
-          - name: Checkout
-            uses: actions/checkout@v4
-          
-          # Setup PHP, Composer, extensions
-          - name: Setup PHP CLI (Composer & outils)
-            uses: shivammathur/setup-php@v2
-            with:
-              php-version: '8.4'
-              extensions: mbstring, intl, pdo_mysql, sodium, zip
-              tools: composer
-              coverage: none
-          
-          # build .env for prod
-          - name: Build .env for the app prod
-            run: |
-                    cp .env .env.prod
-                    echo "APP_ENV=prod" >> .env
-                    echo "APP_ENV=prod" >> .env.prod
-                    echo "DATABASE_URL=mysql://${{ secrets.BDD_LOGIN }}:${{ secrets.BDD_PASSWORD }}@${{ secrets.BDD_SERVER }}:3306/app" >> .env.prod
-                    echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.prod
+      - name: Create test database
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS app_test;"
 
-          # installation des dépendances composer prod
-          - name: Installer dépendances Composer
-            run: composer install --no-interaction --prefer-dist
+      # installation des dépendances Symfony
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+      # migration de la base de données
+      - name: migration DB
+        run: |
+          php bin/console d:m:m
 
-          # creer les clés
-          - name : Création des clés
-            run: |
-                    mkdir -p config/jwt
-                    openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:${{ secrets.JWT_PASSPHRASE }}
-                    openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:${{ secrets.JWT_PASSPHRASE }}
+      # démarrage du serveur Symfony
+      - name: Run Symfony local server
+        run: |
+          php -S 127.0.0.1:8000 -t public &
 
-          # Deployment via FTP
-          - name: 📂 Deployment to FTP
-            uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-            with:
-              server: ${{ secrets.FTP_SERVER }}
-              username: ${{ secrets.FTP_USERNAME }}
-              password: ${{ secrets.FTP_PASSWORD }}
-              exclude: |
-                var/**
-                vendor/**
+      # Cypress Actions
+      - name: Test Cypress
+        uses: cypress-io/github-action@v6
+
+      - uses: actions/upload-artifact@v6
+        # add the line below to store screenshots only on failures
+        # if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore # 'warn' or 'error' are also available, defaults to `warn`
+      - uses: actions/upload-artifact@v6
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore # 'warn' or 'error' are also available, defaults to `warn`
+
+  deploy:
+    needs: e2e
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout du code(récupération depuis le repo github)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Setup PHP, Composer, extensions
+      - name: Setup PHP CLI (Composer & outils)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, intl, pdo_mysql, sodium, zip
+          tools: composer
+          coverage: none
+
+      # build .env for prod
+      - name: Build .env for the app prod
+        run: |
+          cp .env .env.prod
+          echo "APP_ENV=prod" >> .env
+          echo "APP_ENV=prod" >> .env.prod
+          echo "DATABASE_URL=mysql://${{ secrets.BDD_LOGIN }}:${{ secrets.BDD_PASSWORD }}@${{ secrets.BDD_SERVER }}:3306/app" >> .env.prod
+          echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.prod
+
+      # installation des dépendances composer prod
+      - name: Installer dépendances Composer
+        run: composer install --no-interaction --prefer-dist
+
+      # creer les clés
+      - name: Création des clés
+        run: |
+          mkdir -p config/jwt
+          openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:${{ secrets.JWT_PASSPHRASE }}
+          openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:${{ secrets.JWT_PASSPHRASE }}
+
+      # Deployment via FTP
+      - name: 📂 Deployment to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          exclude: |
+            var/**
+            vendor/**
