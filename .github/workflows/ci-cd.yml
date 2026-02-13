@@ -108,7 +108,7 @@ jobs:
             cp .env .env.prod
             echo "APP_ENV=prod" >> .env
             echo "APP_ENV=prod" >> .env.prod
-            echo "DATABASE_URL=mysql://${{ secrets.BDD_LOGIN }}:${{ secrets.BDD_PASSWORD }}@${{ secrets.BDD_SERVER }}:3306/app" >> .env.prod
+            echo "DATABASE_URL=mysql://${{ secrets.BDD_LOGIN }}:${{ secrets.BDD_PASSWORD }}@${{ secrets.BDD_SERVER }}:3306/${{ secrets.BDD_LOGIN }}" >> .env.prod
             echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.prod
 
         # installation des dépendances composer prod
