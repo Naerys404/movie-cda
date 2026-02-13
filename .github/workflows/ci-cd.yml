@@ -85,7 +85,7 @@ jobs:
           path: cypress/videos
           if-no-files-found: ignore # 'warn' or 'error' are also available, defaults to `warn`
 
-    deploy:
+  deploy:
       needs: Symfony-test
       runs-on: ubuntu-latest
       steps:
@@ -131,4 +131,3 @@ jobs:
             password: ${{ secrets.FTP_PASSWORD }}
             exclude: |
               var/**
-              vendor/**
